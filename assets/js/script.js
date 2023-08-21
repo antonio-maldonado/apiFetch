@@ -56,16 +56,18 @@ function displayUsers( users ){
 }
 
 //Retrieve data from Local Storage and display it in DOM
-function displayUsersLocalStorage(){
+function displayUsersLocalStorage(){    
+    setTimeout(()=>{                                                            //Adding delay 100ms
     let users = localStorage.getItem( "users" );
     users = JSON.parse( users );
 
     displayUsers( users );
+    }, 100 )
 }
 
 //Checking if LocalStorage lifespan's data have expired.
 async function checking(){
-    const createdAt = parseInt( localStorage.getItem( "lastDate" ) );        //Retrieving data from LocalStorage
+    const createdAt = parseInt( localStorage.getItem( "lastDate" ) );           //Retrieving data from LocalStorage
     let diffDate = new Date().getTime() - createdAt;                            //Calculating how much time has been spent
 
     if( diffDate >= 60000 ){                                                    //If it has been spent 1 minute
@@ -74,11 +76,11 @@ async function checking(){
         const users = await fetchUsers();                                       //Fetching data with delay
         await displayUsers( users.data );                                       //Displaying data in DOM
 
-        localStorage.setItem( "lastDate" , new Date().getTime() );           //Updating latest refresh
+        localStorage.setItem( "lastDate" , new Date().getTime() );              //Updating latest refresh
         
     }else{                                                                      //If it hasn't been spent 1 minute yet
         console.log( diffDate );
-
+        resetDisplay();                                                         //Delete table data
         displayUsersLocalStorage();                                             //Retrieving data from LocalStore and displaying it in DOM 
     }
 }
