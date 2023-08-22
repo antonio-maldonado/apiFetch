@@ -1,8 +1,17 @@
 //Function to retrieve data from API
-async function fetchUsers(){    
+async function fetchUsers(){   
+    let response,responseJSON; 
+    try{
+        responseJSON = await fetch("https://reqres.in/api/users?delay=3");      //Fetch data with delay
+    }catch(error){
+        console.warn("Error, falló fetch");
+    }
 
-    const responseJSON = await fetch("https://reqres.in/api/users?delay=3");    //Fetch data with delay
-    const response = await responseJSON.json();                                 //Convert JSON to Object
+    try{
+        response = await responseJSON.json();                             //Convert JSON to Object
+    }catch(error){
+        console.warn("Error, No se pudo convertir a JSON");
+    }
     localStorage.setItem("users",JSON.stringify(response.data));                //Convert to String and save data in Local Storage 
 
     return response;                                                            //Return array of objects containing user data
@@ -14,7 +23,6 @@ async function fetchUsers(){
  */
 function displayUsers( users ){
     const userDIV = document.getElementById("users");                           //User data container
-
     
     const usersList = users.map( user =>                                        //Iterating array of objects
         //Table data
@@ -69,17 +77,22 @@ function displayUsersLocalStorage(){
 async function checking(){
     const createdAt = parseInt( localStorage.getItem( "lastDate" ) );           //Retrieving data from LocalStorage
     let diffDate = new Date().getTime() - createdAt;                            //Calculating how much time has been spent
+    let users;
 
     if( diffDate >= 60000 ){                                                    //If it has been spent 1 minute
         resetDisplay();                                                         //Delete table data
-        
-        const users = await fetchUsers();                                       //Fetching data with delay
-        await displayUsers( users.data );                                       //Displaying data in DOM
+        try{
+            users = await fetchUsers();                                         //Fetching data with delay
+        }catch(error){
+            console.warn("Error, falló fetch");
+        }
 
+        displayUsers( users.data );                                             //Displaying data in DOM
+    
         localStorage.setItem( "lastDate" , new Date().getTime() );              //Updating latest refresh
         
     }else{                                                                      //If it hasn't been spent 1 minute yet
-        console.log( diffDate );
+        //console.log( diffDate );
         resetDisplay();                                                         //Delete table data
         displayUsersLocalStorage();                                             //Retrieving data from LocalStore and displaying it in DOM 
     }
